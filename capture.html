@@ -44,8 +44,8 @@
 
       const reset = async () => {
         if (audioDevices.length > 0 && videoDevices.length > 0) {
-          constraints.audio = {deviceId: {exact: audioDevice()}};
-          constraints.video = {deviceId: {exact: videoDevice()}};
+          constraints.audio = {deviceId: audioDevice()};
+          constraints.video = {deviceId: videoDevice()};
         }
         console.debug("getUserMedia constraints:");
         console.debug(constraints);
