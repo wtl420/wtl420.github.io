@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html class="document">
+  <head>
+    <style>
+      .content {
+        align-items: flex-start;
+        background: black;
+        display: flex;
+        justify-content: center;
+        margin: 0;
+        overflow: hidden;
+      }
+      .content, .document {
+        height: 100%;
+        width: 100%;
+      }
+      .element {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body class="content">
+    <video id="element" class="element"></video>
+    <script type="application/javascript">
+      console.info("Press a to switch audio device and v to switch video device");
+      const audioDevices = [];
+      const constraints = {
+          audio: true,
+          video: true,
+      };
+      const handleError = (err) => {
+        console.error(`${err.name}: ${err.message}`);
+      };
+      const videoDevices = [];
+      let currentAudioDevice = 0;
+      let currentVideoDevice = 0;
+      const audioDevice = () => audioDevices[currentAudioDevice];
+      const videoDevice = () => videoDevices[currentVideoDevice];
+
+      const reset = async () => {
+        if (audioDevices.length > 0 && videoDevices.length > 0) {
+          constraints.audio = {deviceId: {exact: audioDevice()}};
+          constraints.video = {deviceId: {exact: videoDevice()}};
+        }
+        console.debug("getUserMedia constraints:");
+        console.debug(constraints);
+        try {
+          var mediaStream = await navigator.mediaDevices
+            .getUserMedia(constraints);
+        } catch(err) {
+          handleError(err);
+
+          return;
+        }
+        const video = document.getElementById("element");
+        video.srcObject = mediaStream;
+        video.onloadedmetadata = () => {
+          video.play();
+        };
+      };
+
+      const fetchDevices = async () => {
+        try {
+          var devices = await navigator.mediaDevices.enumerateDevices();
+        } catch (err) {
+          handleError(err);
+
+          return;
+        }
+
+        devices.map((device) => {
+          switch (device.kind) {
+            case "audioinput":
+              audioDevices.push(device.deviceId);
+              break;
+            case "videoinput":
+              videoDevices.push(device.deviceId);
+              break;
+          }
+        });
+        console.debug("Audio Devices:");
+        console.debug(audioDevices);
+        console.debug("Video Devices:");
+        console.debug(videoDevices);
+
+        reset();
+      }
+
+      fetchDevices();
+
+      addEventListener("keypress", (event) => {
+        switch (event.key.toLowerCase()) {
+          case "a":
+            ++currentAudioDevice;
+            if (currentAudioDevice >= audioDevices.length) {
+              currentAudioDevice = 0;
+            }
+            console.debug(`currentAudioDevice: ${currentAudioDevice} => ${audioDevices[currentAudioDevice]}`);
+            reset();
+
+            break;
+          case "v":
+            ++currentVideoDevice;
+            if (currentVideoDevice >= videoDevices.length) {
+              currentVideoDevice = 0;
+            }
+            console.debug(`currentVideoDevice: ${currentVideoDevice} => ${videoDevices[currentVideoDevice]}`);
+            reset();
+
+            break;
+          default:
+            // noop
+        }
+
+        return true;
+      });
+    </script>
+  </body>
+</html>
