@@ -19,11 +19,15 @@
         width: 100%;
       }
     </style>
+    <title>Video Capture</title>
   </head>
   <body class="content">
     <video id="element" class="element"></video>
     <script type="application/javascript">
-      console.info("Press a to switch audio device and v to switch video device");
+      console.info(`Controls:
+  a: Switch audio device
+  t: Enter page title
+  v: Switch video device`);
       const audioDevices = [];
       const constraints = {
           audio: true,
@@ -98,6 +102,10 @@
             }
             console.debug(`currentAudioDevice: ${currentAudioDevice} => ${audioDevices[currentAudioDevice]}`);
             reset();
+
+            break;
+          case "t":
+            document.title = window.prompt("Set title for page:", document.title);
 
             break;
           case "v":
